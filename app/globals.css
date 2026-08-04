@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #14171a;
+  --panel: #1b1f23;
+  --panel-raised: #22272c;
+  --line: #2c3238;
+  --foreground: #e7e9ea;
+  --muted: #8b939b;
+
+  /* Semantic -- evidence & confidence, not decorative */
+  --signal-amber: #f0a93a;
+  --signal-teal: #4c9a8e;
+  --signal-rust: #c4553f;
+  --signal-blue: #5b8dbf;
+
+  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-panel: var(--panel);
+  --color-panel-raised: var(--panel-raised);
+  --color-line: var(--line);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-signal-amber: var(--signal-amber);
+  --color-signal-teal: var(--signal-teal);
+  --color-signal-rust: var(--signal-rust);
+  --color-signal-blue: var(--signal-blue);
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-display);
+}
+
+.instrument-grid {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

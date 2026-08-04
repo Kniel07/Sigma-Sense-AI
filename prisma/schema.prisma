@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InvestigationPhase {
+  DEFINE
+  MEASURE
+  ANALYZE
+  IMPROVE
+  CONTROL
+  CLOSED
+}
+
+enum HypothesisStatus {
+  OPEN
+  VALIDATED
+  REJECTED
+}
+
+enum EvidenceDirection {
+  SUPPORT
+  CONTRADICT
+}
+
+model Organization {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  investigations Investigation[]
+}
+
+model Investigation {
+  id             String              @id @default(cuid())
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  title          String
+  phase          InvestigationPhase  @default(DEFINE)
+  status         String              @default("active")
+
+  // Define phase fields
+  problemStatement   String?
+  businessImpact     String?
+  currentState       String?
+  targetState        String?
+  ctq                String?
+  voc                String?
+  sipoc              Json?
+  stakeholders       Json?
+  timeline           Json?
+  charter            Json?
+
+  hypotheses   Hypothesis[]
+  datasets     Dataset[]
+  actions      Action[]
+  agentRuns    AgentRun[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Dataset {
+  id               String   @id @default(cuid())
+  investigationId  String
+  investigation    Investigation @relation(fields: [investigationId], references: [id])
+  sourceType       String
+  storageRef       String
+  qualityReport    Json?
+  createdAt        DateTime @default(now())
+}
+
+model Hypothesis {
+  id               String   @id @default(cuid())
+  investigationId  String
+  investigation    Investigation @relation(fields: [investigationId], references: [id])
+  description      String
+  confidence       Float    @default(0.5)
+  status           HypothesisStatus @default(OPEN)
+  experiments      Experiment[]
+  evidenceLinks    EvidenceLink[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Experiment {
+  id               String   @id @default(cuid())
+  investigationId  String
+  hypothesisId     String
+  hypothesis       Hypothesis @relation(fields: [hypothesisId], references: [id])
+  purpose          String
+  variablesChanged   Json?
+  variablesControlled Json?
+  sampleSize       Int?
+  beforeValues     Json?
+  afterValues      Json?
+  operator         String?
+  results          Json?
+  conclusion       String?
+  lessonsLearned   String?
+  evidenceLinks    EvidenceLink[]
+  createdAt        DateTime @default(now())
+}
+
+model EvidenceLink {
+  id            String   @id @default(cuid())
+  hypothesisId  String
+  hypothesis    Hypothesis @relation(fields: [hypothesisId], references: [id])
+  experimentId  String
+  experiment    Experiment @relation(fields: [experimentId], references: [id])
+  direction     EvidenceDirection
+  weight        Float    @default(1.0)
+  createdAt     DateTime @default(now())
+}
+
+model Action {
+  id              String   @id @default(cuid())
+  investigationId String
+  investigation   Investigation @relation(fields: [investigationId], references: [id])
+  type            String   // "corrective" | "control"
+  description     String
+  ownerName       String?
+  dueDate         DateTime?
+  status          String   @default("open")
+  createdAt       DateTime @default(now())
+}
+
+model AgentRun {
+  id              String   @id @default(cuid())
+  investigationId String
+  investigation   Investigation @relation(fields: [investigationId], references: [id])
+  agentType       String
+  input           Json
+  output          Json
+  reasoning       String
+  createdAt       DateTime @default(now())
+}
